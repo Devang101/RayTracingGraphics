@@ -1,0 +1,23 @@
+Shader.source[document.currentScript.src.split('js/shaders/')[1]] = `
+precision highp float;
+varying vec2 texCoord;
+varying vec3 worldNormal;
+varying vec3 worldPos;
+varying vec3 rayDir;
+uniform sampler2D colorTexture;
+uniform sampler2D probeTexture;
+uniform vec3 eyePosition;
+
+void main(void) {
+  vec3 lightDirection = vec3(1,1,1);
+  vec3 normal = normalize(worldNormal);
+  float dotProduct = dot(normal, lightDirection);
+
+  vec3 viewDir = normalize(worldPos - eyePosition);
+  vec3 reflDir = reflect(-viewDir, normal);
+  vec3 m = normalize(viewDir + reflDir);
+  //find corresponding point in light probe
+  vec2 probeTex = vec2(m.x/2.0 + 0.5, -m.y/2.0 +0.5);
+  gl_FragColor = texture2D(probeTexture, probeTex);
+}
+`;
